@@ -1,0 +1,3 @@
+﻿  SlidingBlocks.cpp
+F:\FMI 3 kurs 1 sem\AI\homework1\SlidingBlocks\SlidingBlocks\SlidingBlocks.cpp(438,16): warning C4244: '=': conversion from 'double' to 'short', possible loss of data
+  SlidingBlocks.vcxproj -> F:\FMI 3 kurs 1 sem\AI\homework1\SlidingBlocks\Debug\SlidingBlocks.exe
