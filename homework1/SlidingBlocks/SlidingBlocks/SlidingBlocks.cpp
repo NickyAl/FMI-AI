@@ -6,249 +6,413 @@
 #include <vector>
 #include <chrono>
 
-short int SIZE;
+using s_int = short int;
 
-void swap(short int& a, short int& b)
-{
-    short int temp;
-    temp = a;
-    a = b;
-    b = temp;
-}
+s_int SIZE;
 
-struct Node 
+class Node
 {
-    short int** matrix;
-    std::list<Node> children;
-    short int emptyX;
-    short int emptyY;
+private:
+    s_int** matrix;
+    s_int emptyX, emptyY;
+
     std::string lastMovement;
 
+    //helper functions to generate the right matrix for the second constructor
+    s_int** left();
+    s_int** right();
+    s_int** up();
+    s_int** down();
 
-    Node(short int** newMatrix)
-    {
-        matrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            matrix[i] = new short int [SIZE];
+    static int elementHeuristic(s_int elem, s_int x, s_int y);
 
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                matrix[i][j] = newMatrix[i][j];
-                if (matrix[i][j] == 0)
-                {
-                    emptyX = i;
-                    emptyY = j;
-                }
-            }
-        }
+public:
+    Node(s_int** newMatrix);
+    Node(s_int** newMatrix, std::string movement); //the second constructor
+    ~Node();
 
-        lastMovement = "none";
-    }
+    std::string getLastMovement() const { return lastMovement; }
 
-    Node(short int** newMatrix, std::string movement)
-    {
-        matrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            matrix[i] = new short int[SIZE];
+    std::vector<Node*> getChildren();
 
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                matrix[i][j] = newMatrix[i][j];
-                if (matrix[i][j] == 0)
-                {
-                    emptyX = i;
-                    emptyY = j;
-                }
-            }
-        }
+    int manhattan_heuristic(s_int goalIndex);
 
-        lastMovement = movement;
-    }
-
-    short int** left()
-    {
-        short int** childMatrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            childMatrix[i] = new short int[SIZE];
-
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                childMatrix[i][j] = matrix[i][j];
-            }
-        }
-
-        if (emptyY < SIZE - 1)
-        {
-            childMatrix[emptyX][emptyY] = childMatrix[emptyX][emptyY + 1];
-            childMatrix[emptyX][emptyY + 1] = 0;
-            //swap(matrix[emptyX][emptyY], matrix[emptyX][emptyY + 1]);
-        }
-
-        return childMatrix;
-    }
-
-    short int** right()
-    {
-        short int** childMatrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            childMatrix[i] = new short int[SIZE];
-
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                childMatrix[i][j] = matrix[i][j];
-            }
-        }
-
-        if (emptyY > 0)
-        {
-            childMatrix[emptyX][emptyY] = childMatrix[emptyX][emptyY - 1];
-            childMatrix[emptyX][emptyY - 1] = 0;
-            //swap(matrix[emptyX][emptyY], matrix[emptyX][emptyY - 1]);
-        }
-
-        return childMatrix;
-    }
-
-    short int** up()
-    {
-        short int** childMatrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            childMatrix[i] = new short int[SIZE];
-
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                childMatrix[i][j] = matrix[i][j];
-            }
-        }
-
-        if (emptyX < SIZE - 1)
-        {
-            childMatrix[emptyX][emptyY] = childMatrix[emptyX + 1][emptyY];
-            childMatrix[emptyX + 1][emptyY] = 0;
-            //swap(matrix[emptyX][emptyY], matrix[emptyX + 1][emptyY]);
-        }
-
-        return childMatrix;
-    }
-
-    short int** down()
-    {
-        short int** childMatrix = new short int* [SIZE];
-        for (short int i = 0; i < SIZE; i++)
-            childMatrix[i] = new short int[SIZE];
-
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                childMatrix[i][j] = matrix[i][j];
-            }
-        }
-
-        if (emptyX > 0)
-        {
-            childMatrix[emptyX][emptyY] = childMatrix[emptyX - 1][emptyY];
-            childMatrix[emptyX - 1][emptyY] = 0;
-            //swap(matrix[emptyX][emptyY], matrix[emptyX + 1][emptyY]);
-        }
-
-        return childMatrix;
-    }
-
-    std::vector<Node> getChildren()
-    {
-        std::vector<Node> children;
-
-        if (lastMovement != "right")
-        {
-            if (emptyY < SIZE - 1)
-            {
-                Node left(left(), "left");
-                children.push_back(left);
-            }
-        }
-        if (lastMovement != "left")
-        {
-            if (emptyY > 0)
-            {
-                Node right(right(), "right");
-                children.push_back(right);
-            }
-        }
-        if (lastMovement != "down")
-        {
-            if (emptyX < SIZE - 1)
-            {
-                Node up(up(), "up");
-                children.push_back(up);
-            }
-        }
-        if (lastMovement != "up")
-        {
-            if (emptyX > 0)
-            {
-                Node down(down(), "down");
-                children.push_back(down);
-            }
-        }
-
-
-        return children;
-    }
-
-    void print()
-    {
-        for (short int i = 0; i < SIZE; i++)
-        {
-            for (short int j = 0; j < SIZE; j++)
-            {
-                std::cout << matrix[i][j] << ' ';
-            }
-            std::cout << '\n';
-        }
-
-        std::cout << '\n';
-    }
+    bool isGoal(s_int** goalMatrix);
 };
 
-short int elementHeuristic(short int elem, short int x, short int y)
+//Helper functions
+
+s_int** generateGoalMatrix(s_int goalIndex)
 {
-    int elemX, elemY;//, sum;
-    elemX = elem / SIZE;
-    elemY = (elem % SIZE) - 1;
+    s_int** goalMatrix;
+    goalMatrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        goalMatrix[i] = new s_int[SIZE];
+
+
+    s_int index = 1;
+    bool doOnce = true;
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            if (doOnce && goalIndex == index) //to place the empty space
+            {
+                goalMatrix[i][j] = 0;
+                doOnce = false;
+            }
+            else
+            {
+                goalMatrix[i][j] = index++;
+            }
+        }
+    }
+
+    return goalMatrix;
+}
+
+int min(std::stack<int>& boundries)
+{
+    int min = boundries.top();
+    boundries.pop();
+
+    while (!boundries.empty())
+    {
+        if (min > boundries.top())
+        {
+            min = boundries.top();
+        }
+
+        boundries.pop();
+    }
+
+    return min;
+}
+
+//Algorithm
+
+bool search(Node* crr, s_int** goalMatrix, s_int goalIndex, std::stack<std::string>& path, int boundry, std::stack<int>& boundries, int rootHeuristic)
+{
+    if (crr->isGoal(goalMatrix))
+    {
+        return true; //the root is the goal
+    }
+
+    std::vector<Node*> children = crr->getChildren();
+    int heuristic;
+    Node* child;
+    for (std::vector<Node*>::iterator it = children.begin(); it != children.end(); it++)
+    {
+        child = *it;
+        heuristic = child->manhattan_heuristic(goalIndex);
+
+        if (heuristic == 0)
+        {
+            path.push(child->getLastMovement());
+            delete child;
+            return true;
+        }
+
+        if ((rootHeuristic + heuristic) > boundry)
+        {
+            boundries.push(rootHeuristic + heuristic);
+        }
+        else
+        {
+
+            if (search(child, goalMatrix, goalIndex, path, boundry, boundries, rootHeuristic + heuristic))
+            {
+                path.push(child->getLastMovement());
+                delete child;
+                return true;
+            }
+        }
+
+        delete child;
+    }
+
+    return false;
+}
+
+void ida_star(Node* root, short int** goalMatrix, short int goalIndex)
+{
+    auto frame_start = std::chrono::high_resolution_clock::now();
+
+    short int rootHeuristic = root->manhattan_heuristic(goalIndex);
+    short int boundry = rootHeuristic + 1;
+    std::stack<std::string> path;
+    std::stack<int> boundries;
+
+    while (true)
+    {
+        if (search(root, goalMatrix, goalIndex, path, boundry, boundries, rootHeuristic))
+        {
+            break;
+        }
+        boundry = min(boundries);
+
+        while (!boundries.empty())
+        {
+            boundries.pop();
+        }
+
+        while (!path.empty())
+        {
+            path.pop();
+        }
+    }
+
+
+    auto frame_end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> duration = frame_end - frame_start;
+
+    std::cout << duration.count() << '\n';
+
+    std::cout << path.size() << '\n';
+
+    while (!path.empty())
+    {
+        std::cout << path.top() << '\n';
+        path.pop();
+    }
+}
+
+
+int main()
+{
+    s_int count, goalIndex;
+    s_int** matrix;
+
+    //input data
+    std::cin >> count;
+    SIZE = (int)sqrt(count + 1);
+
+    std::cin >> goalIndex;
+    if (goalIndex == -1)
+        goalIndex = count + 1;
+
+    matrix = new short int* [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        matrix[i] = new s_int[SIZE];
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            std::cin >> matrix[i][j];
+        }
+    }
+
+    short int** goalMatrix = generateGoalMatrix(goalIndex);
+
+    Node* node = new Node(matrix);
+
+    ida_star(node, goalMatrix, goalIndex);
+
+    delete node;
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        delete[] matrix[i];
+        delete[] goalMatrix[i];
+    }
+    delete[] matrix;
+    delete[] goalMatrix;
+    
+
+    int n;
+    std::cin >> n;
+}
+
+s_int** Node::left()
+{
+    s_int** childMatrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        childMatrix[i] = new s_int[SIZE];
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            childMatrix[i][j] = matrix[i][j];
+        }
+    }
+
+    childMatrix[emptyX][emptyY] = childMatrix[emptyX][emptyY + 1];
+    childMatrix[emptyX][emptyY + 1] = 0;
+
+    return childMatrix;
+}
+
+s_int** Node::right()
+{
+    s_int** childMatrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        childMatrix[i] = new s_int[SIZE];
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            childMatrix[i][j] = matrix[i][j];
+        }
+    }
+
+    childMatrix[emptyX][emptyY] = childMatrix[emptyX][emptyY - 1];
+    childMatrix[emptyX][emptyY - 1] = 0;
+
+    return childMatrix;
+}
+
+s_int** Node::up()
+{
+    s_int** childMatrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        childMatrix[i] = new s_int[SIZE];
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            childMatrix[i][j] = matrix[i][j];
+        }
+    }
+
+    childMatrix[emptyX][emptyY] = childMatrix[emptyX + 1][emptyY];
+    childMatrix[emptyX + 1][emptyY] = 0;
+
+    return childMatrix;
+}
+
+s_int** Node::down()
+{
+    s_int** childMatrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        childMatrix[i] = new s_int[SIZE];
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            childMatrix[i][j] = matrix[i][j];
+        }
+    }
+
+    childMatrix[emptyX][emptyY] = childMatrix[emptyX - 1][emptyY];
+    childMatrix[emptyX - 1][emptyY] = 0;
+
+    return childMatrix;
+}
+
+int Node::elementHeuristic(s_int elem, s_int x, s_int y)
+{
+    int elemX, elemY;
+    elemX = (int)elem / SIZE;
+    elemY = ((int)elem % SIZE) - 1;
     if (elemY == -1)
     {
         elemY = SIZE - 1;
         elemX--;
     }
-    //sum = abs((elemX - x)) + abs((elemY - y));
 
-    //std::cout << "elemX = " << elemX << '\n';
-    //std::cout << "elemY = " << elemY << '\n';
-    //std::cout << "x = " << x << '\n';
-    //std::cout << "y = " << y << '\n';
-
-    return abs((elemX - x)) + abs((elemY - y));
+    return abs((elemX - (int)x)) + abs((elemY - (int)y));
 }
 
-short int manhattan_heuristic(short int** matrix, short int goalIndex)
+Node::Node(s_int** newMatrix)
 {
-    short int heuristicSum = 0;
-    bool passedZero = false;
+    matrix = new s_int * [SIZE];
+    for (s_int i = 0; i < SIZE; i++)
+        matrix[i] = new s_int[SIZE];
 
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            matrix[i][j] = newMatrix[i][j];
+            if (matrix[i][j] == 0)
+            {
+                emptyX = i;
+                emptyY = j;
+            }
+        }
+    }
+
+    lastMovement = "none";
+}
+
+Node::Node(s_int** newMatrix, std::string movement)
+{
+    matrix = newMatrix; //we must not create a new pointer for the node's matrix because newMatrix is used only to generate a matrix for this node and we need to use it so it can be deleted with the node itself later on
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
+        {
+            if (matrix[i][j] == 0)
+            {
+                emptyX = i;
+                emptyY = j;
+            }
+        }
+    }
+
+    lastMovement = movement;
+}
+
+Node::~Node()
+{
     for (short int i = 0; i < SIZE; i++)
     {
-        for (short int j = 0; j < SIZE; j++)
+        delete[] matrix[i];
+    }
+
+    delete[] matrix;
+}
+
+std::vector<Node*> Node::getChildren()
+{
+    std::vector<Node*> children;
+
+    if (lastMovement != "right")
+    {
+        if (emptyY < SIZE - 1)
+        {
+            children.push_back(new Node(left(), "left"));
+        }
+    }
+    if (lastMovement != "left")
+    {
+        if (emptyY > 0)
+        {
+            children.push_back(new Node(right(), "right"));
+        }
+    }
+    if (lastMovement != "down")
+    {
+        if (emptyX < SIZE - 1)
+        {
+            children.push_back(new Node(up(), "up"));
+        }
+    }
+    if (lastMovement != "up")
+    {
+        if (emptyX > 0)
+        {
+            children.push_back(new Node(down(), "down"));
+        }
+    }
+
+    return children;
+}
+
+int Node::manhattan_heuristic(s_int goalIndex)
+{
+    int heuristicSum = 0;
+    bool passedZero = false;
+
+    for (s_int i = 0; i < SIZE; i++)
+    {
+        for (s_int j = 0; j < SIZE; j++)
         {
             if (matrix[i][j] == 0)
             {
@@ -269,40 +433,11 @@ short int manhattan_heuristic(short int** matrix, short int goalIndex)
     return heuristicSum;
 }
 
-short int** generateGoalMatrix(short int goalIndex)
+bool Node::isGoal(s_int** goalMatrix)
 {
-    short int** goalMatrix;
-    goalMatrix = new short int* [SIZE];
-    for (short int i = 0; i < SIZE; i++)
-        goalMatrix[i] = new short int[SIZE];
-
-
-    short int index = 1;
-    bool doOnce = true;
-    for (short int i = 0; i < SIZE; i++)
+    for (s_int i = 0; i < SIZE; i++)
     {
-        for (short int j = 0; j < SIZE; j++)
-        {
-            if (doOnce && goalIndex == index)
-            {
-                goalMatrix[i][j] = 0;
-                doOnce = false;
-            }
-            else
-            {
-                goalMatrix[i][j] = index++;
-            }
-        }
-    }
-
-    return goalMatrix;
-}
-
-bool isGoal(short int** matrix, short int** goalMatrix)
-{
-    for (short int i = 0; i < SIZE; i++)
-    {
-        for (short int j = 0; j < SIZE; j++)
+        for (s_int j = 0; j < SIZE; j++)
         {
             if (matrix[i][j] != goalMatrix[i][j])
                 return false;
@@ -310,267 +445,4 @@ bool isGoal(short int** matrix, short int** goalMatrix)
     }
 
     return true;
-}
-
-short int min(std::stack<short int>& boundries)
-{
-    short int min = boundries.top();
-    boundries.pop();
-
-    while (!boundries.empty())
-    {
-        if (min > boundries.top())
-        {
-            min = boundries.top();
-        }
-
-        boundries.pop();
-    }
-
-    return min;
-}
-
-short int max(std::stack<short int>& boundries)
-{
-    short int max = boundries.top();
-    boundries.pop();
-
-    while (!boundries.empty())
-    {
-        if (max < boundries.top())
-        {
-            max = boundries.top();
-        }
-
-        boundries.pop();
-    }
-
-    return max;
-}
-
-//algorithm
-
-
-bool algorithm(Node crr, short int** goalMatrix, short int goalIndex, std::stack<std::string>& path, short int boundry , std::stack<short int>& boundries, short int rootHeuristic)
-{
-    if (isGoal(crr.matrix, goalMatrix))
-    {
-        return true; //found
-    }
-
-    std::vector<Node> children = crr.getChildren();
-
-    short int heuristic; 
-    for (std::vector<Node>::iterator it = children.begin(); it != children.end(); it++)
-    {
-        heuristic = manhattan_heuristic(it->matrix, goalIndex);
-
-        if (heuristic == 0)
-        {
-            path.push(it->lastMovement);
-            return true;
-        }
-
-        if ((rootHeuristic + heuristic) > boundry)
-        {
-            boundries.push(rootHeuristic + heuristic);
-        }
-        else
-        {
-            path.push(it->lastMovement);
-            if (algorithm(*it, goalMatrix, goalIndex, path, boundry, boundries, rootHeuristic + heuristic))
-                return true;
-        }
-    }
-
-    return false;
-}
-
-void ida_star(Node root, short int** goalMatrix, short int goalIndex)
-{
-    auto frame_start = std::chrono::high_resolution_clock::now();
-
-    short int rootHeuristic = manhattan_heuristic(root.matrix, goalIndex);
-    short int boundry = rootHeuristic + 1;
-    std::stack<std::string> path;
-    std::stack<short int> boundries;
-
-    while (true)
-    {
-        if (algorithm(root, goalMatrix, goalIndex, path, boundry, boundries, rootHeuristic))
-        {
-            break;
-        }
-        boundry = min(boundries);
-
-        while (!path.empty())
-        {
-            path.pop();
-        }
-    }
-
-
-    auto frame_end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<float> duration = frame_end - frame_start;
-
-    std::cout << duration.count() << '\n';
-
-
-    std::string result;
-    std::cout << path.size() << '\n';
-    while (!path.empty())
-    {
-        result = (path.top() + "\n") + result;
-        path.pop();
-    }
-    std::cout << result;
-}
-
-
-
-int main()
-{
-    short int count, goalIndex;
-    short int** matrix;
-
-    //input data
-    std::cin >> count;
-    SIZE = sqrt(count + 1);
-
-    std::cin >> goalIndex;
-    if (goalIndex == -1)
-        goalIndex = count + 1;
-
-    matrix = new short int* [SIZE];
-    for (short int i = 0; i < SIZE; i++)
-        matrix[i] = new short int[SIZE];
-
-    for (short int i = 0; i < SIZE; i++)
-    {
-        for (short int j = 0; j < SIZE; j++)
-        {
-            std::cin >> matrix[i][j];
-        }
-    }
-    
-    short int** goalMatrix = generateGoalMatrix(goalIndex);
-
-    //std::cout <<std::boolalpha<< isGoal(matrix, goalMatrix);
-
-    //generate first node
-    Node node(matrix);
-
-    
-    ida_star(node, goalMatrix, goalIndex);
-    /*
-    std::cout << "\n=====================\n";
-    
-    std::cout << '\n';
-    std::cout << manhattan_heuristic(node.matrix, goalIndex) << '\n';
-    node.print();
-    std::cout << '\n';
-
-    std::vector<Node> nodes = node.getChildren();
-
-    std::cout << "---------------\n";
-
-    for (std::vector<Node>::iterator it = nodes.begin(); it != nodes.end(); it++)
-    {
-        std::cout << manhattan_heuristic(it->matrix, goalIndex) << '\n';
-        it->print();
-        std::cout << '\n';
-    }
-
-    std::cout << "---------------\n";
-
-    std::vector<Node> nodes2 = nodes.front().getChildren();
-
-    for (std::vector<Node>::iterator it = nodes2.begin(); it != nodes2.end(); it++)
-    {
-        std::cout << manhattan_heuristic(it->matrix, goalIndex) << '\n';
-        it->print();
-        std::cout << '\n';
-    }
-
-    Node node2(node.left());
-
-    std::cout << '\n';
-
-
-
-    for (short int i = 0; i < SIZE; i++)
-    {
-        for (short int j = 0; j < SIZE; j++)
-        {
-            std::cout << node2.matrix[i][j] << ' ';
-        }
-        std::cout << '\n';
-    }
-
-    std::cout << '\n';
-
-    */
-    //generate goal matrix
-    /*short int** goalMatrix;
-    goalMatrix = new short int* [SIZE];
-    for (short int i = 0; i < SIZE; i++)
-        goalMatrix[i] = new short int[SIZE];
-
-
-    short int index = 1;
-    bool doOnce = true;
-    for (short int i = 0; i < SIZE; i++)
-    {
-        for (short int j = 0; j < SIZE; j++)
-        {
-            if (doOnce && goalIndex == index)
-            {
-                goalMatrix[i][j] = 0;
-                doOnce = false;
-            }
-            else
-            {
-                goalMatrix[i][j] = index++;
-            }
-        }
-    }
-
-    for (short int i = 0; i < SIZE; i++)
-    {
-        for (short int j = 0; j < SIZE; j++)
-        {
-            std::cout << goalMatrix[i][j] << ' ';
-        }
-        std::cout << '\n';
-    }*/
-
-    //calculate manhattan heuristic
-
-    //short int heuristicSum = 0;
-    //bool passedZero = false;
-
-    //for (short int i = 0; i < SIZE; i++)
-    //{
-    //    for (short int j = 0; j < SIZE; j++)
-    //    {
-    //        if (matrix[i][j] == 0)
-    //        {
-    //            continue;
-    //        }
-
-    //        if (matrix[i][j] < goalIndex)
-    //        {
-    //            heuristicSum += elementHeuristic(matrix[i][j], i, j);
-    //            //std::cout << matrix[i][j] << '|' << elementHeuristic(matrix[i][j], i, j) << '\n';
-    //        }
-    //        else
-    //        {
-    //            heuristicSum += elementHeuristic(matrix[i][j] + 1, i, j);
-    //            //std::cout << matrix[i][j] << '/' << elementHeuristic(matrix[i][j], i, j) << '\n';
-    //        }
-    //    }
-    //}
-
-    //std::cout << '\n' << heuristicSum;
-    
 }
