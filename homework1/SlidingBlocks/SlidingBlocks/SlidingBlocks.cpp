@@ -1,5 +1,4 @@
 #include <iostream>
-#include <list>
 #include <cmath>
 #include <string>
 #include <stack>
@@ -218,10 +217,6 @@ int main()
     }
     delete[] matrix;
     delete[] goalMatrix;
-    
-
-    int n;
-    std::cin >> n;
 }
 
 s_int** Node::left()
@@ -373,7 +368,7 @@ std::vector<Node*> Node::getChildren()
 {
     std::vector<Node*> children;
 
-    if (lastMovement != "right")
+    if (lastMovement != "right") //generates all possible children without the one that has the same matrix as the grand parrent
     {
         if (emptyY < SIZE - 1)
         {
