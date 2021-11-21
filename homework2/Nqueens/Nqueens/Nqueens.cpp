@@ -216,6 +216,6 @@ int main()
     delete[] lines;
     delete[] mainDiag;
     delete[] scndDiag;
-    
+
     return 0;
 }

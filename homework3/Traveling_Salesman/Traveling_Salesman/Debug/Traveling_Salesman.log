@@ -1,0 +1,5 @@
+﻿  Traveling_Salesman.cpp
+F:\FMI 3 kurs 1 sem\AI\homework3\Traveling_Salesman\Traveling_Salesman\Traveling_Salesman.cpp(303,91): warning C4244: '-=': conversion from 'double' to 'int', possible loss of data
+F:\FMI 3 kurs 1 sem\AI\homework3\Traveling_Salesman\Traveling_Salesman\Traveling_Salesman.cpp(307,55): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+F:\FMI 3 kurs 1 sem\AI\homework3\Traveling_Salesman\Traveling_Salesman\Traveling_Salesman.cpp(318,91): warning C4244: '-=': conversion from 'double' to 'int', possible loss of data
+  Traveling_Salesman.vcxproj -> F:\FMI 3 kurs 1 sem\AI\homework3\Traveling_Salesman\Debug\Traveling_Salesman.exe
